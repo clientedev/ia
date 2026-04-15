@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inteligência Artificial — O Cérebro Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@200;400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #12121c;
+            --fg: #f0f0f5;
+            --muted: #8888a0;
+            --accent: #00ff88;
+            --accent2: #ff3366;
+            --accent3: #00c2ff;
+            --card: rgba(255,255,255,0.04);
+            --border: rgba(255,255,255,0.08);
+            --glow: 0 0 40px rgba(0,255,136,0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(0,255,136,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,51,102,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(0,194,255,0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .bg-grid::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .particles {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            animation: floatParticle linear infinite;
+        }
+
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        .slides-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 60px;
+            opacity: 0;
+            transform: translateX(80px) scale(0.95);
+            transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            pointer-events: all;
+        }
+
+        .slide.exit-left {
+            opacity: 0;
+            transform: translateX(-80px) scale(0.95);
+        }
+
+        .slide-inner {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .slide-inner.centered {
+            grid-template-columns: 1fr;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .slide-inner.full-img {
+            grid-template-columns: 1fr 1.2fr;
+        }
+
+        .slide-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+
+        .slide-tag.pink { color: var(--accent2); }
+        .slide-tag.blue { color: var(--accent3); }
+
+        .slide-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .slide-title .highlight {
+            background: linear-gradient(135deg, var(--accent), var(--accent3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-title .highlight-pink {
+            background: linear-gradient(135deg, var(--accent2), #ff8844);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        .slide-text strong {
+            color: var(--fg);
+            font-weight: 600;
+        }
+
+        .example-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .example-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .example-card:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(0,255,136,0.2);
+            transform: translateX(6px);
+        }
+
+        .example-card .icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .icon-box.green { background: rgba(0,255,136,0.12); color: var(--accent); }
+        .icon-box.pink { background: rgba(255,51,102,0.12); color: var(--accent2); }
+        .icon-box.blue { background: rgba(0,194,255,0.12); color: var(--accent3); }
+        .icon-box.orange { background: rgba(255,170,0,0.12); color: #ffaa00; }
+
+        .example-card p {
+            font-size: 0.92rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .example-card p strong {
+            color: var(--fg);
+        }
+
+        .slide-image {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 4/3;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .slide-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .slide-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .slide-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            pointer-events: none;
+        }
+
+        .img-caption {
+            position: absolute;
+            bottom: 14px;
+            left: 14px;
+            right: 14px;
+            background: rgba(10,10,15,0.85);
+            backdrop-filter: blur(10px);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        .neuron-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            position: relative;
+            padding: 30px;
+        }
+
+        .neuron-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+            position: relative;
+            z-index: 2;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .neuron-node.green {
+            background: rgba(0,255,136,0.15);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 20px rgba(0,255,136,0.2);
+        }
+
+        .neuron-node.blue {
+            background: rgba(0,194,255,0.15);
+            border: 2px solid var(--accent3);
+            color: var(--accent3);
+            box-shadow: 0 0 20px rgba(0,194,255,0.2);
+            animation-delay: 0.3s;
+        }
+
+        .neuron-node.pink {
+            background: rgba(255,51,102,0.15);
+            border: 2px solid var(--accent2);
+            color: var(--accent2);
+            box-shadow: 0 0 20px rgba(255,51,102,0.2);
+            animation-delay: 0.6s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        .neuron-layer {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .neuron-connector {
+            width: 50px;
+            height: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .neuron-connector::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: flowSignal 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flowSignal {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .comparison-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .comparison-box .comp-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .comparison-box .comp-label.human { color: var(--accent); }
+        .comparison-box .comp-label.ai { color: var(--accent2); }
+
+        .comparison-box .comp-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .comparison-box p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 24px;
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent3), var(--accent2));
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            padding: 14px 0;
+            position: relative;
+        }
+
+        .timeline-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            z-index: 2;
+            color: var(--accent);
+        }
+
+        .timeline-item:nth-child(2) .timeline-dot { border-color: var(--accent3); color: var(--accent3); }
+        .timeline-item:nth-child(3) .timeline-dot { border-color: var(--accent2); color: var(--accent2); }
+        .timeline-item:nth-child(4) .timeline-dot { border-color: #ffaa00; color: #ffaa00; }
+
+        .timeline-content h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .timeline-content p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .big-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 6rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .big-number.green { color: var(--accent); }
+        .big-number.pink { color: var(--accent2); }
+        .big-number.blue { color: var(--accent3); }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2));
+            z-index: 100;
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 100;
+            background: rgba(10,10,15,0.8);
+            backdrop-filter: blur(20px);
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+        }
+
+        .nav-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--fg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:disabled:hover {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--fg);
+        }
+
+        .slide-counter {
+            font-size: 0.85rem;
+            color: var(--muted);
+            min-width: 60px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .slide-counter span { color: var(--fg); font-weight: 700; }
+
+        .slide-dots {
+            position: fixed;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 100;
+        }
+
+        .slide-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .slide-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 10px rgba(0,255,136,0.4);
+            transform: scale(1.3);
+        }
+
+        .slide-dot:hover:not(.active) {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(2.8rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--muted);
+            font-weight: 300;
+            max-width: 500px;
+            line-height: 1.7;
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .badge.green { border-color: rgba(0,255,136,0.3); color: var(--accent); background: rgba(0,255,136,0.06); }
+        .badge.pink { border-color: rgba(255,51,102,0.3); color: var(--accent2); background: rgba(255,51,102,0.06); }
+        .badge.blue { border-color: rgba(0,194,255,0.3); color: var(--accent3); background: rgba(0,194,255,0.06); }
+
+        .img-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .img-grid .slide-image {
+            aspect-ratio: 1;
+        }
+
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 18px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .flow-step:hover {
+            border-color: rgba(0,255,136,0.2);
+            transform: translateX(4px);
+        }
+
+        .flow-step + .flow-step {
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .flow-step + .flow-step::before {
+            content: '';
+            position: absolute;
+            top: -14px;
+            left: 33px;
+            width: 2px;
+            height: 14px;
+            background: var(--border);
+        }
+
+        .flow-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(0,255,136,0.1);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+
+        .flow-step p {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .flow-step p strong { color: var(--fg); }
+
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-box .stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .stat-box .stat-label {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .types-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .type-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            transition: all 0.3s;
+        }
+
+        .type-card:hover {
+            border-color: rgba(0,255,136,0.2);
+            transform: translateY(-2px);
+        }
+
+        .type-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .type-card p {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .slide.active .slide-tag { animation: fadeUp 0.5s 0.1s both; }
+        .slide.active .slide-title { animation: fadeUp 0.5s 0.2s both; }
+        .slide.active .slide-text { animation: fadeUp 0.5s 0.3s both; }
+        .slide.active .example-cards { animation: fadeUp 0.5s 0.4s both; }
+        .slide.active .slide-image { animation: fadeScale 0.6s 0.2s both; }
+        .slide.active .comparison { animation: fadeUp 0.5s 0.4s both; }
+        .slide.active .timeline { animation: fadeUp 0.5s 0.3s both; }
+        .slide.active .flow-steps { animation: fadeUp 0.5s 0.4s both; }
+        .slide.active .stat-row { animation: fadeUp 0.5s 0.4s both; }
+        .slide.active .types-grid { animation: fadeUp 0.5s 0.4s both; }
+        .slide.active .hero-badges { animation: fadeUp 0.5s 0.5s both; }
+        .slide.active .neuron-visual { animation: fadeScale 0.6s 0.3s both; }
+        .slide.active .img-grid { animation: fadeScale 0.6s 0.2s both; }
+        .slide.active .hero-teacher { animation: fadeUp 0.5s 0.6s both; }
+        .slide.active .big-number { animation: fadeUp 0.5s 0.1s both; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeScale {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .styled-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+
+        .styled-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            font-size: 0.95rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .styled-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 16px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .styled-list li:nth-child(2)::before { background: var(--accent3); }
+        .styled-list li:nth-child(3)::before { background: var(--accent2); }
+        .styled-list li:nth-child(4)::before { background: #ffaa00; }
+
+        /* Créditos do professor na capa */
+        .hero-teacher {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .hero-teacher-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.12), rgba(0,194,255,0.12));
+            border: 1px solid rgba(0,255,136,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .hero-teacher-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-teacher-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--fg);
+            line-height: 1.3;
+        }
+
+        .hero-teacher-school {
+            font-size: 0.78rem;
+            color: var(--accent);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 900px) {
+            .slide { padding: 24px; }
+            .slide-inner { grid-template-columns: 1fr !important; gap: 24px; }
+            .slide-image { max-height: 250px; }
+            .comparison { grid-template-columns: 1fr; }
+            .slide-dots { display: none; }
+            .nav-controls { bottom: 16px; }
+            .neuron-visual { transform: scale(0.8); }
+            .img-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="particles" id="particles"></div>
+
+<div class="slides-container" id="slidesContainer">
+
+    <!-- SLIDE 1: Capa -->
+    <div class="slide active" data-slide="0">
+        <div class="slide-inner full-img">
+            <div>
+                <div class="slide-tag">Apresentacao 2025</div>
+                <h1 class="hero-title">Inteligencia<br>Artificial<br><span class="highlight">O Cerebro Digital</span></h1>
+                <p class="hero-subtitle">Como maquinas estao aprendendo a pensar, criar e decidir — e por que isso parece tao parecido com voce.</p>
+                <div class="hero-badges">
+                    <span class="badge green"><i class="fas fa-brain"></i>&nbsp; Cerebro</span>
+                    <span class="badge pink"><i class="fas fa-robot"></i>&nbsp; IA</span>
+                    <span class="badge blue"><i class="fas fa-network-wired"></i>&nbsp; Redes Neurais</span>
+                </div>
+                <div class="hero-teacher">
+                    <div class="hero-teacher-icon"><i class="fas fa-chalkboard-user"></i></div>
+                    <div class="hero-teacher-info">
+                        <span class="hero-teacher-name">Professor Gabriel Eduardo</span>
+                        <span class="hero-teacher-school">SENAI "Morvan Figueiredo"</span>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/aibrain2025/800/600.jpg" alt="Cérebro digital">
+                <div class="img-caption"><i class="fas fa-camera"></i>&nbsp; A fusao entre mente humana e inteligencia de maquina</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: O que é IA -->
+    <div class="slide" data-slide="1">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag">Slide 02</div>
+                <h2 class="slide-title">O que e <span class="highlight">Inteligencia Artificial</span>?</h2>
+                <p class="slide-text">Imagine que voce pudesse ensinar um computador a <strong>pensar</strong> — nao copiando pensamentos, mas <strong>aprendendo sozinho</strong> a partir de exemplos. Isso e IA: um sistema que percebe, raciocina, aprende e toma decisoes.</p>
+                <div class="comparison" style="margin-top:24px">
+                    <div class="comparison-box">
+                        <div class="comp-label human"><i class="fas fa-user"></i> Humano</div>
+                        <div class="comp-icon"><i class="fas fa-brain"></i></div>
+                        <p>Aprende vivendo, errando e sentindo. Usa neuronios biologicos.</p>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comp-label ai"><i class="fas fa-microchip"></i> IA</div>
+                        <div class="comp-icon"><i class="fas fa-server"></i></div>
+                        <p>Aprende processando dados e padroes. Usa neuronios artificiais.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/whatsai77/800/600.jpg" alt="Conceito de IA">
+                <div class="img-caption"><i class="fas fa-lightbulb"></i>&nbsp; IA nao e magica — e matematica inspirada na natureza</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: IA no dia a dia -->
+    <div class="slide" data-slide="2">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag pink">Slide 03</div>
+                <h2 class="slide-title">Voce ja usa IA <span class="highlight-pink">sem saber</span></h2>
+                <p class="slide-text">Da mesma forma que voce usa o cerebro para escolher o que assistir sem pensar "estou processando informacoes", a IA trabalha invisivelmente por tras de tudo.</p>
+                <div class="example-cards">
+                    <div class="example-card">
+                        <div class="icon-box pink"><i class="fab fa-tiktok"></i></div>
+                        <p><strong>TikTok:</strong> O feed sabe o que voce gosta. Assim como seu cerebro reconhece padroes do que te diverte.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box green"><i class="fas fa-gamepad"></i></div>
+                        <p><strong>Games:</strong> Inimigos que se adaptam ao seu estilo de jogo, como um adversario que aprende seus truques.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box blue"><i class="fas fa-map-marker-alt"></i></div>
+                        <p><strong>Google Maps:</strong> Prevê trafego como voce prevê se a rua vai estar cheia pela experiencia.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box orange"><i class="fas fa-spell-check"></i></div>
+                        <p><strong>Autocorrect:</strong> Corrige suas palavras como um professor que ja conhece seus erros.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="img-grid">
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/tiktokfeed9/500/500.jpg" alt="Feed do TikTok">
+                </div>
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/gamingai22/500/500.jpg" alt="Games com IA">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Como surgiu -->
+    <div class="slide" data-slide="3">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag blue">Slide 04</div>
+                <h2 class="slide-title">Como tudo <span class="highlight">comecou</span></h2>
+                <p class="slide-text">Assim como a ciencia surgiu da curiosidade humana de entender o mundo, a IA surgiu de uma pergunta simples: <strong>podemos fazer maquinas pensarem?</strong></p>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot">1950</div>
+                        <div class="timeline-content">
+                            <h4>Alan Turing e o Teste de Turing</h4>
+                            <p>Propôs: se uma maquina consegue conversar e voce nao sabe se e humana ou nao, ela e inteligente. Como reconhecer um amigo pela voz sem ver o rosto.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot">1956</div>
+                        <div class="timeline-content">
+                            <h4>Dartmouth — o nascimento oficial</h4>
+                            <p>Cientistas se reuniram e criaram o termo "Inteligencia Artificial". Foi como batizar um bebe que ja estava crescendo.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot">1997</div>
+                        <div class="timeline-content">
+                            <h4>Deep Blue vence Kasparov</h4>
+                            <p>Um computador venceu o campeao de xadrez. Como um aluno que estudou milhares de partidas e superou o mestre.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot">2022+</div>
+                        <div class="timeline-content">
+                            <h4>Era do ChatGPT e IA generativa</h4>
+                            <p>IA que conversa, cria imagens, musica, codigo. Como se o cerebro digital tivesse ganhado imaginacao.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/alanturning7/800/700.jpg" alt="História da IA">
+                <div class="img-caption"><i class="fas fa-clock-rotate-left"></i>&nbsp; De 1950 a 2025: 75 anos sonhando com maquinas inteligentes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Teste de Turing -->
+    <div class="slide" data-slide="4">
+        <div class="slide-inner centered">
+            <div class="slide-tag pink">Slide 05</div>
+            <h2 class="slide-title" style="text-align:center">O Teste de Turing: <span class="highlight-pink">Voce saberia?</span></h2>
+            <p class="slide-text" style="text-align:center; max-width:700px; margin:0 auto 30px;">Imagine estar no WhatsApp. Alguem manda mensagem. Voce conversa por 5 minutos. So depois descobre: era uma IA. Se voce nao percebeu, ela <strong>passou no teste</strong>.</p>
+            <div class="comparison" style="max-width:650px; margin:0 auto;">
+                <div class="comparison-box" style="padding:28px">
+                    <div class="comp-label human"><i class="fas fa-comments"></i> Cenario Real</div>
+                    <p style="font-size:0.9rem; margin-top:10px;"><strong>Voce:</strong> "Qual a melhor serie?"<br><strong>Alguem:</strong> "Depende! Voce gosta de suspense? Que tal Dark?"<br><em style="color:var(--accent); font-size:0.8rem;">Parece humano... mas e a IA.</em></p>
+                </div>
+                <div class="comparison-box" style="padding:28px">
+                    <div class="comp-label ai"><i class="fas fa-robot"></i> Analogia</div>
+                    <p style="font-size:0.9rem; margin-top:10px;">E como quando voce recebe uma mensagem e <strong>adivinha quem e</strong> pelo jeito de escrever. O Teste de Turing pergunta: <strong>consegue adivinhar?</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Como funciona -->
+    <div class="slide" data-slide="5">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag">Slide 06</div>
+                <h2 class="slide-title">Como a IA <span class="highlight">funciona</span>?</h2>
+                <p class="slide-text">Pense em como voce aprendeu a reconhecer um cachorro: <strong>viu muitos cachorros</strong>, percebeu os padroes (4 patas, pelo, focinho) e agora identifica qualquer um. A IA faz a mesma coisa, so que com <strong>milhoes de exemplos</strong> em segundos.</p>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-num">1</div>
+                        <p><strong>Coleta de dados</strong> — como ler muitos livros antes de uma prova</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">2</div>
+                        <p><strong>Identifica padroes</strong> — como perceber que todas as musicas que voce gosta tem guitarra</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">3</div>
+                        <p><strong>Cria um modelo</strong> — como formar sua "regra" do que e bom ou ruim</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">4</div>
+                        <p><strong>Preve/Decide</strong> — como prever o final de um filme pela metade</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/howaiworks5/800/700.jpg" alt="Como funciona a IA">
+                <div class="img-caption"><i class="fas fa-cogs"></i>&nbsp; Dados entram → padroes sao encontrados → decisao sai</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Dados = Experiência -->
+    <div class="slide" data-slide="6">
+        <div class="slide-inner centered">
+            <div class="slide-tag blue">Slide 07</div>
+            <h2 class="slide-title" style="text-align:center">Dados sao a <span class="highlight">experiencia</span> da IA</h2>
+            <p class="slide-text" style="text-align:center; max-width:700px; margin:0 auto 30px;">Voce tem 14-16 anos de experiencia de vida. Tudo que aprendeu — falar, andar, reconhecer pessoas — veio de <strong>dados sensoriais</strong> que seu cerebro processou. A IA precisa de dados artificiais para ter a mesma experiencia.</p>
+            <div class="stat-row" style="max-width:700px; margin:0 auto;">
+                <div class="stat-box">
+                    <div class="stat-val green">86B</div>
+                    <div class="stat-label">Neuronios no seu cerebro</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val pink">175B</div>
+                    <div class="stat-label">Parametros no GPT-3</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val blue">16 anos</div>
+                    <div class="stat-label">Sua experiencia de vida</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" style="color:#ffaa00">5 dias</div>
+                    <div class="stat-label">Tempo de treino do GPT-3</div>
+                </div>
+            </div>
+            <p class="slide-text" style="text-align:center; margin-top:24px; font-size:0.9rem;">A diferenca: voce aprende com <strong>poucos exemplos</strong>. A IA precisa de <strong>milhoes</strong>. Mas a IA nao esquece.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: O que é Machine Learning -->
+    <div class="slide" data-slide="7">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag pink">Slide 08</div>
+                <h2 class="slide-title">Machine Learning: <span class="highlight-pink">aprender fazendo</span></h2>
+                <p class="slide-text">Machine Learning (ML) e a parte da IA que <strong>aprende sozinha</strong>. Ninguem programa todas as regras — como ninguem te ensinou cada musculo a mover para andar de bicicleta. Voce <strong>tentou, caiu, ajustou</strong> e aprendeu.</p>
+                <div class="comparison">
+                    <div class="comparison-box">
+                        <div class="comp-label human"><i class="fas fa-bicycle"></i> Aprender bicicleta</div>
+                        <p style="margin-top:8px;">Tenta → erra → ajusta o equilibrio → tenta de novo → acerta. Seu cerebro <strong>aprendeu com o erro</strong>.</p>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comp-label ai"><i class="fas fa-chart-line"></i> Machine Learning</div>
+                        <p style="margin-top:8px;">Testa → erra → ajusta os parametros → testa de novo → acerta. A IA <strong>aprende com o erro</strong>.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/bicycleml8/800/600.jpg" alt="Machine Learning">
+                <div class="img-caption"><i class="fas fa-sync-alt"></i>&nbsp; O ciclo: tentar, errar, ajustar, repetir</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: ML na prática -->
+    <div class="slide" data-slide="8">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag">Slide 09</div>
+                <h2 class="slide-title">ML na <span class="highlight">pratica</span></h2>
+                <p class="slide-text">Cada vez que voce interage com algo inteligente, ML esta por tras. Veja exemplos que voce provavelmente ja usou hoje:</p>
+                <div class="example-cards">
+                    <div class="example-card">
+                        <div class="icon-box green"><i class="fas fa-music"></i></div>
+                        <p><strong>Spotify Discover Weekly:</strong> Analisa o que voce ouviu e encontra musicas parecidas. Como um amigo que sabe seu gosto musical.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box pink"><i class="fas fa-face-smile"></i></div>
+                        <p><strong>Filtros do Instagram:</strong> Reconhecem seu rosto em milissegundos. Seu cerebro faz isso em ~200ms.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box blue"><i class="fas fa-shield-halved"></i></div>
+                        <p><strong>Antivirus inteligente:</strong> Detecta virus novos que ninguem viu antes, como voce desconfia de algo estranho.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box orange"><i class="fas fa-language"></i></div>
+                        <p><strong>Google Tradutor:</strong> Melhora a cada traducao, como voce melhora um idioma praticando.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="img-grid">
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/spotifyml4/500/500.jpg" alt="Spotify ML">
+                </div>
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/facefilter3/500/500.jpg" alt="Filtros IA">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Tipos de ML -->
+    <div class="slide" data-slide="9">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag blue">Slide 10</div>
+                <h2 class="slide-title">3 tipos de <span class="highlight">aprendizado</span></h2>
+                <p class="slide-text">Assim como voce aprende de formas diferentes na escola, na rua e sozinho, o ML tambem tem 3 jeitos de aprender:</p>
+                <div class="types-grid">
+                    <div class="type-card">
+                        <h4><span style="color:var(--accent)"><i class="fas fa-chalkboard-teacher"></i></span> Supervisionado</h4>
+                        <p>Alguem te da as respostas antes da prova. A IA recebe dados com "etiquetas": <em>"essa foto e um gato, essa e um cachorro"</em>. Como aprender com flashcards.</p>
+                    </div>
+                    <div class="type-card">
+                        <h4><span style="color:var(--accent3)"><i class="fas fa-compass"></i></span> Nao supervisionado</h4>
+                        <p>Ninguem te ensina, voce agrupa coisas sozinho. A IA recebe fotos sem etiquetas e descobre: <em>"essas sao parecidas, vou agrupar"</em>. Como organizar seus desenhos por estilo sem ninguem mandar.</p>
+                    </div>
+                    <div class="type-card">
+                        <h4><span style="color:var(--accent2)"><i class="fas fa-trophy"></i></span> Por reforco</h4>
+                        <p>Voce tenta, recebe premio ou castigo. A IA joga um jogo mil vezes, ganha pontos quando acerta, perde quando erra. Como treinar um cachorro com petiscos.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image" style="aspect-ratio:auto;">
+                <img src="https://picsum.photos/seed/mltypes19/800/800.jpg" alt="Tipos de ML" style="height:100%; object-fit:cover;">
+                <div class="img-caption"><i class="fas fa-sitemap"></i>&nbsp; Tres caminhos, um objetivo: aprender</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Supervisionado -->
+    <div class="slide" data-slide="10">
+        <div class="slide-inner centered">
+            <div class="slide-tag">Slide 11</div>
+            <h2 class="slide-title" style="text-align:center">Supervisionado: <span class="highlight">como estudar com gabarito</span></h2>
+            <p class="slide-text" style="text-align:center; max-width:700px; margin:0 auto 30px;">Quando voce faz exercicios de matematica e confere no gabarito, voce sabe se acertou ou errou. A IA supervisionada faz a mesma coisa: recebe os dados com a <strong>resposta certa</strong> e aprende a acertar.</p>
+            <div class="comparison" style="max-width:700px; margin:0 auto;">
+                <div class="comparison-box" style="padding:24px">
+                    <div class="comp-label human"><i class="fas fa-user-graduate"></i> Voce na prova</div>
+                    <p style="margin-top:10px;">Questao: "Quanto e 7x8?"<br>Sua resposta: "56"<br>Gabarito: "56" <span style="color:var(--accent);">✓ Certo!</span><br>Seu cerebro reforça essa conexao.</p>
+                </div>
+                <div class="comparison-box" style="padding:24px">
+                    <div class="comp-label ai"><i class="fas fa-robot"></i> IA supervisionada</div>
+                    <p style="margin-top:10px;">Imagem: [foto de gato]<br>Resposta da IA: "cachorro"<br>Gabarito: "gato" <span style="color:var(--accent2);">✗ Errado!</span><br>A IA ajusta seus parametros e tenta de novo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Não supervisionado -->
+    <div class="slide" data-slide="11">
+        <div class="slide-inner centered">
+            <div class="slide-tag pink">Slide 12</div>
+            <h2 class="slide-title" style="text-align:center">Nao supervisionado: <span class="highlight-pink">descobrir sozinho</span></h2>
+            <p class="slide-text" style="text-align:center; max-width:700px; margin:0 auto 30px;">Imagine que alguem te da uma caixa cheia de pecas de Lego sem manual. Voce sozinho percebe: <em>"essas sao vermelhas, essas sao azuis, essas encaixam"</em>. A IA faz isso com dados: agrupa, encontra padroes, <strong>sem ninguem dizer o que e o que</strong>.</p>
+            <div class="comparison" style="max-width:700px; margin:0 auto;">
+                <div class="comparison-box" style="padding:24px">
+                    <div class="comp-label human"><i class="fas fa-puzzle-piece"></i> Voce com Lego</div>
+                    <p style="margin-top:10px;">Pecas misturadas → voce separa por cor, tamanho, formato → descobre que consegue montar um castelo. Ninguem mandou.</p>
+                </div>
+                <div class="comparison-box" style="padding:24px">
+                    <div class="comp-label ai"><i class="fas fa-database"></i> IA com dados</div>
+                    <p style="margin-top:10px;">Clientes misturados → IA separa por padrao de compra → descobre 3 grupos: compradores de games, de roupas, de livros. Ninguem ensinou.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Por reforço -->
+    <div class="slide" data-slide="12">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag blue">Slide 13</div>
+                <h2 class="slide-title">Reforco: <span class="highlight">treinar com recompensa</span></h2>
+                <p class="slide-text">Sabe quando voce joga um jogo e ganha XP? Seu cerebro libera dopamina e voce quer repetir. O aprendizado por reforco faz a IA <strong>buscar recompensas</strong> e <strong>evitar punicoes</strong>.</p>
+                <div class="example-cards">
+                    <div class="example-card">
+                        <div class="icon-box green"><i class="fas fa-dog"></i></div>
+                        <p><strong>Treinar um cachorro:</strong> Senta → petisco. Nao senta → ignora. Repete 100x → o cachorro sempre senta.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box pink"><i class="fas fa-mountain"></i></div>
+                        <p><strong>AlphaGo (IA de Go):</strong> Jogou contra si mesma milhoes de vezes. Ganhou = recompensa. Perdeu = punicao. Virou imbativel.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box blue"><i class="fas fa-car"></i></div>
+                        <p><strong>Carros autonomos:</strong> Mantem na faixa = recompensa. Sai da faixa = punicao. Aprendem a dirigir sozinhos.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/rewardlearn9/800/600.jpg" alt="Aprendizado por reforço">
+                <div class="img-caption"><i class="fas fa-star"></i>&nbsp; Acao → resultado → ajuste → repeticao</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: O que é Rede Neural -->
+    <div class="slide" data-slide="13">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag">Slide 14</div>
+                <h2 class="slide-title">Rede Neural: <span class="highlight">o cerebro copiado</span></h2>
+                <p class="slide-text">Seu cerebro tem <strong>86 bilhoes de neuronios</strong> conectados entre si. Quando voce ve um rosto, milhoes de neuronios "disparam" em sequencia ate voce reconhecer a pessoa. Uma <strong>rede neural artificial</strong> copia essa ideia: camadas de "neuronios" digitais que processam informacoes em sequencia.</p>
+                <div class="comparison" style="margin-top:24px;">
+                    <div class="comparison-box">
+                        <div class="comp-label human"><i class="fas fa-brain"></i> Neuronio real</div>
+                        <p style="margin-top:8px;">Recebe sinais → processa → dispara ou nao para o proximo neuronio. Tudo quimico e eletrico.</p>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comp-label ai"><i class="fas fa-circle-nodes"></i> Neuronio artificial</div>
+                        <p style="margin-top:8px;">Recebe numeros → multiplica por pesos → soma → aplica ativacao → passa para o proximo. Tudo matematico.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/neuralnet14/800/600.jpg" alt="Rede Neural">
+                <div class="img-caption"><i class="fas fa-project-diagram"></i>&nbsp; A mesma arquitetura do cerebro, feita em codigo</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Visualização de rede neural -->
+    <div class="slide" data-slide="14">
+        <div class="slide-inner centered">
+            <div class="slide-tag pink">Slide 15</div>
+            <h2 class="slide-title" style="text-align:center">Veja como <span class="highlight-pink">funciona dentro</span></h2>
+            <p class="slide-text" style="text-align:center; max-width:600px; margin:0 auto 30px;">Cada ponto e um "neuronio". As linhas sao conexoes. A informacao flui da esquerda para a direita, como um pensamento viajando pelo seu cerebro:</p>
+            <div class="neuron-visual" style="width:100%; max-width:750px;">
+                <div class="neuron-layer">
+                    <div class="neuron-node green" style="width:50px;height:50px;font-size:0.55rem;">Olho</div>
+                    <div class="neuron-node green" style="width:50px;height:50px;font-size:0.55rem;">Orelha</div>
+                    <div class="neuron-node green" style="width:50px;height:50px;font-size:0.55rem;">Focinho</div>
+                </div>
+                <div class="neuron-connector" style="height:200px;width:2px;background:var(--border);">
+                    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--accent), var(--accent3));opacity:0.3;animation:pulse 2s infinite;"></div>
+                </div>
+                <div class="neuron-layer">
+                    <div class="neuron-node blue" style="width:50px;height:50px;font-size:0.55rem;">Forma</div>
+                    <div class="neuron-node blue" style="width:50px;height:50px;font-size:0.55rem;">Textura</div>
+                    <div class="neuron-node blue" style="width:50px;height:50px;font-size:0.55rem;">Tamanho</div>
+                    <div class="neuron-node blue" style="width:50px;height:50px;font-size:0.55rem;">Cor</div>
+                </div>
+                <div class="neuron-connector" style="height:200px;width:2px;background:var(--border);">
+                    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--accent3), var(--accent2));opacity:0.3;animation:pulse 2s 0.5s infinite;"></div>
+                </div>
+                <div class="neuron-layer">
+                    <div class="neuron-node pink" style="width:50px;height:50px;font-size:0.55rem;">Patas?</div>
+                    <div class="neuron-node pink" style="width:50px;height:50px;font-size:0.55rem;">Pelo?</div>
+                    <div class="neuron-node pink" style="width:50px;height:50px;font-size:0.55rem;">Rabo?</div>
+                </div>
+                <div class="neuron-connector" style="height:200px;width:2px;background:var(--border);">
+                    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, var(--accent2), #ffaa00);opacity:0.3;animation:pulse 2s 1s infinite;"></div>
+                </div>
+                <div class="neuron-layer">
+                    <div class="neuron-node" style="width:60px;height:60px;font-size:0.6rem;background:rgba(255,170,0,0.15);border:2px solid #ffaa00;color:#ffaa00;box-shadow:0 0 20px rgba(255,170,0,0.2);animation-delay:1.3s;">GATO<br>98%</div>
+                </div>
+            </div>
+            <p class="slide-text" style="text-align:center; margin-top:16px; font-size:0.88rem;">Entrada (dados) → Camadas ocultas (pensamento) → Saida (decisao)</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Camadas da rede neural -->
+    <div class="slide" data-slide="15">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag blue">Slide 16</div>
+                <h2 class="slide-title">As camadas de uma <span class="highlight">rede neural</span></h2>
+                <p class="slide-text">Assim como seu cerebro processa informacoes em etapas (ver → reconhecer forma → identificar objeto → dar nome), a rede neural tem camadas com funcoes especificas:</p>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-num" style="background:rgba(0,255,136,0.1);color:var(--accent);">E</div>
+                        <p><strong>Camada de Entrada:</strong> Recebe os dados brutos. Como seus olhos recebendo luz e formato antes de processar.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num" style="background:rgba(0,194,255,0.1);color:var(--accent3);">O</div>
+                        <p><strong>Camadas Ocultas:</strong> Onde a "magica" acontece. Processam, combinam, filtram. Como seu cortex cerebral trabalhando internamente.</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num" style="background:rgba(255,51,102,0.1);color:var(--accent2);">S</div>
+                        <p><strong>Camada de Saida:</strong> A decisao final. "E um gato com 98% de certeza". Como quando voce diz "ei, e o Felipe!" ao ver alguem.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/layersnn16/800/700.jpg" alt="Camadas rede neural">
+                <div class="img-caption"><i class="fas fa-layer-group"></i>&nbsp; Mais camadas ocultas = mais capacidade de aprender coisas complexas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Deep Learning -->
+    <div class="slide" data-slide="16">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag pink">Slide 17</div>
+                <h2 class="slide-title">Deep Learning: <span class="highlight-pink">especializacao extrema</span></h2>
+                <p class="slide-text">Deep Learning e quando a rede neural tem <strong>muitas camadas ocultas</strong> (por isso "deep" = profundo). E como a diferenca entre um medico generalista e um especialista em neurocirurgia: quanto mais camadas de conhecimento, mais especifico o resultado.</p>
+                <div class="comparison">
+                    <div class="comparison-box">
+                        <div class="comp-label human"><i class="fas fa-user-doctor"></i> Especialista humano</div>
+                        <p style="margin-top:8px;">Medico → residente → especialista → referencia mundial. Cada etapa e uma "camada" de aprendizado.</p>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comp-label ai"><i class="fas fa-microchip"></i> Deep Learning</div>
+                        <p style="margin-top:8px;">Rede simples → 10 camadas → 100 camadas → 175 bilhoes de parametros. Cada camada aprende algo mais complexo.</p>
+                    </div>
+                </div>
+                <ul class="styled-list" style="margin-top:20px;">
+                    <li><strong>Primeira camada:</strong> detecta bordas e linhas</li>
+                    <li><strong>Camada do meio:</strong> detecta formas (olhos, orelhas)</li>
+                    <li><strong>Camada final:</strong> detecta rostos completos</li>
+                    <li><strong>Exemplo real:</strong> Face ID do iPhone usa deep learning</li>
+                </ul>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/deeplearn17/800/700.jpg" alt="Deep Learning">
+                <div class="img-caption"><i class="fas fa-infinity"></i>&nbsp; Quanto mais profundo, mais poderoso</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Reconhecimento facial -->
+    <div class="slide" data-slide="17">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag">Slide 18</div>
+                <h2 class="slide-title">Reconhecimento <span class="highlight">facial</span></h2>
+                <p class="slide-text">Quando voce ve um amigo na rua, seu cerebro nao analisa cada pixel. Ele olha o <strong>todo</strong> e reconhece em 200ms. A rede neural faz algo parecido, mas em detalhes que voce nem percebe:</p>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-num">1</div>
+                        <p><strong>Detecta o rosto</strong> — encontra a "moldura" do rosto na imagem, como voce acha um rosto na multidao</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">2</div>
+                        <p><strong>Mapeia pontos</strong> — marca 68 pontos (olhos, nariz, boca). Como desenhar os pontos de connect-the-dots</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">3</div>
+                        <p><strong>Converte em numeros</strong> — cada rosto vira um vetor unico, como uma "impressao digital matematica"</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num">4</div>
+                        <p><strong>Compara</strong> — verifica se esse vetor combina com o seu cadastrado. Como conferir se a assinatura bate</p>
+                    </div>
+                </div>
+            </div>
+            <div class="img-grid">
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/facerec18a/500/500.jpg" alt="Detecção facial">
+                    <div class="img-caption">Detecção do rosto</div>
+                </div>
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/facerec18b/500/500.jpg" alt="Mapeamento facial">
+                    <div class="img-caption">Mapeamento de pontos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Algoritmo de recomendação -->
+    <div class="slide" data-slide="18">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag pink">Slide 19</div>
+                <h2 class="slide-title">Por que o TikTok <span class="highlight-pink">sabe tao bem</span>?</h2>
+                <p class="slide-text">O algoritmo de recomendacao e uma rede neural que observa <strong>tudo o que voce faz</strong>: quanto tempo assiste, se curte, se compartilha, se volta. E como um amigo que presta atencao em cada reacao sua para saber o que te faz rir.</p>
+                <div class="comparison">
+                    <div class="comparison-box">
+                        <div class="comp-label human"><i class="fas fa-heart"></i> Voce com amigos</div>
+                        <p style="margin-top:8px;">"Vi que voce riu daquele meme de gato. Vou te mandar mais." Seu amigo aprendeu seu gosto observando suas reacoes.</p>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comp-label ai"><i class="fas fa-tiktok"></i> TikTok</div>
+                        <p style="margin-top:8px;">"Vi que voce assistiu 8s de humor e pulou after. Vou priorizar humor." A IA aprendeu processando bilhoes de interacoes.</p>
+                    </div>
+                </div>
+                <p class="slide-text" style="margin-top:16px; font-size:0.9rem;">A diferenca: seu amigo observa voce. O TikTok observa <strong>1 bilhao de pessoas ao mesmo tempo</strong>.</p>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/tiktokalgo19/800/600.jpg" alt="Algoritmo de recomendação">
+                <div class="img-caption"><i class="fas fa-chart-bar"></i>&nbsp; Cada swipe alimenta o algoritmo</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: ChatGPT -->
+    <div class="slide" data-slide="19">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag blue">Slide 20</div>
+                <h2 class="slide-title">ChatGPT: como voce <span class="highlight">responde</span> em uma conversa</h2>
+                <p class="slide-text">Quando alguem pergunta algo, voce nao busca todas as palavras no cerebro. Voce <strong>prevê qual palavra vem depois</strong>, naturalmente. O ChatGPT faz a mesma coisa, so que com matematica:</p>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-num" style="background:rgba(0,194,255,0.1);color:var(--accent3);">?</div>
+                        <p><strong>Entrada:</strong> "O ceu e..." → a IA calcula probabilidades da proxima palavra</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num" style="background:rgba(0,194,255,0.1);color:var(--accent3);">!</div>
+                        <p><strong>"azul"</strong> (85%) / <strong>"verde"</strong> (3%) / <strong>"bonito"</strong> (8%) / <strong>"grande"</strong> (4%)</p>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-num" style="background:rgba(0,194,255,0.1);color:var(--accent3);">→</div>
+                        <p><strong>Escolhe "azul"</strong> e repete o processo para a proxima palavra, formando uma frase completa</p>
+                    </div>
+                </div>
+                <p class="slide-text" style="margin-top:16px; font-size:0.9rem;">Parece simples, mas sao <strong>175 bilhoes de parametros</strong> calculando isso para cada palavra. Em <strong>200ms</strong> — mais rapido que voce pensar na resposta.</p>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/chatgpt20/800/700.jpg" alt="ChatGPT">
+                <div class="img-caption"><i class="fas fa-message"></i>&nbsp; Prever a proxima palavra, repetir, formar ideias</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: IA generativa -->
+    <div class="slide" data-slide="20">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag">Slide 21</div>
+                <h2 class="slide-title">IA Generativa: <span class="highlight">imaginar como nos</span></h2>
+                <p class="slide-text">Voce consegue imaginar um "cachorro astronauta flutuando em marte" sem nunca ter visto. Seu cerebro <strong>combina conceitos</strong> que conhece para criar algo novo. A IA generativa faz a mesma coisa:</p>
+                <div class="example-cards">
+                    <div class="example-card">
+                        <div class="icon-box green"><i class="fas fa-image"></i></div>
+                        <p><strong>Midjourney / DALL-E:</strong> Criam imagens a partir de texto. Como desenhar algo que alguem descreveu pra voce.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box pink"><i class="fas fa-music"></i></div>
+                        <p><strong>Suno AI:</strong> Cria musicas com voz, melodia e letra. Como compor uma musica na cabeça e cantarolar.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box blue"><i class="fas fa-video"></i></div>
+                        <p><strong>Sora / Runway:</strong> Geram videos a partir de texto. Como imaginar uma cena de filme e descrever.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box orange"><i class="fas fa-code"></i></div>
+                        <p><strong>GitHub Copilot:</strong> Escreve codigo. Como um programador que completa seu pensamento.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="img-grid">
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/genart21a/500/500.jpg" alt="Arte generativa">
+                </div>
+                <div class="slide-image">
+                    <img src="https://picsum.photos/seed/genart21b/500/500.jpg" alt="IA criativa">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Ética e IA -->
+    <div class="slide" data-slide="21">
+        <div class="slide-inner centered">
+            <div class="slide-tag pink">Slide 22</div>
+            <h2 class="slide-title" style="text-align:center">IA e etica: <span class="highlight-pink">nem tudo e perfeito</span></h2>
+            <p class="slide-text" style="text-align:center; max-width:700px; margin:0 auto 30px;">Assim como qualquer ferramenta poderosa, a IA tem lados preocupantes. Se voce ensina um amigo errado, ele repete o erro. Se a IA aprende com dados enviesados, ela <strong>reproduz preconceitos</strong>.</p>
+            <div class="types-grid" style="max-width:700px; margin:0 auto;">
+                <div class="type-card" style="border-color:rgba(255,51,102,0.15);">
+                    <h4><span style="color:var(--accent2)"><i class="fas fa-eye-slash"></i></span> Deepfakes</h4>
+                    <p>Videos falsos ultra-realistas. Como alguem fingindo ser voce, mas perfeito demais para notar. Ja foram usados em golpes e fake news.</p>
+                </div>
+                <div class="type-card" style="border-color:rgba(255,170,0,0.15);">
+                    <h4><span style="color:#ffaa00"><i class="fas fa-balance-scale"></i></span> Vies nos dados</h4>
+                    <p>Se treinar IA so com fotos de pessoas brancas, ela nao reconhece pessoas negras. O problema nao e a IA — sao os dados. Como crescer so num ambiente e achar que o mundo inteiro e assim.</p>
+                </div>
+                <div class="type-card" style="border-color:rgba(0,194,255,0.15);">
+                    <h4><span style="color:var(--accent3)"><i class="fas fa-briefcase"></i></span> Substituicao de empregos</h4>
+                    <p>IA vai substituir alguns empregos, mas tambem vai <strong>criar novos</strong>. Em 2010, "influenciador digital" nao existia. Em 2030, "engenheiro de IA" pode ser tao comum quanto "programador" hoje.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 23: Cérebro vs IA -->
+    <div class="slide" data-slide="22">
+        <div class="slide-inner centered">
+            <div class="slide-tag">Slide 23</div>
+            <h2 class="slide-title" style="text-align:center">Cerebro humano <span class="highlight">vs</span> IA</h2>
+            <p class="slide-text" style="text-align:center; max-width:650px; margin:0 auto 24px;">Um nao e melhor que o outro. Sao <strong>diferentes</strong>. Veja a comparacao:</p>
+            <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:20px; max-width:800px; margin:0 auto; align-items:start;">
+                <div>
+                    <div class="stat-box" style="margin-bottom:12px;">
+                        <div class="stat-val green">20W</div>
+                        <div class="stat-label">Energia do cerebro (uma lampada)</div>
+                    </div>
+                    <div class="stat-box" style="margin-bottom:12px;">
+                        <div class="stat-val green">~200ms</div>
+                        <div class="stat-label">Para reconhecer um rosto</div>
+                    </div>
+                    <div class="stat-box" style="margin-bottom:12px;">
+                        <div class="stat-val green">1 exemplo</div>
+                        <div class="stat-label">Para aprender um novo conceito</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val green">Criativo</div>
+                        <div class="stat-label">Imagina, sonha, sente</div>
+                    </div>
+                </div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:10px; padding-top:20px;">
+                    <div style="width:2px; height:40px; background:var(--border);"></div>
+                    <div style="font-family:'Outfit'; font-weight:900; font-size:1.2rem; color:var(--muted);">VS</div>
+                    <div style="width:2px; height:40px; background:var(--border);"></div>
+                </div>
+                <div>
+                    <div class="stat-box" style="margin-bottom:12px;">
+                        <div class="stat-val pink">1MW</div>
+                        <div class="stat-label">Energia de um data center IA</div>
+                    </div>
+                    <div class="stat-box" style="margin-bottom:12px;">
+                        <div class="stat-val pink">~10ms</div>
+                        <div class="stat-label">Para processar milhoes de dados</div>
+                    </div>
+                    <div class="stat-box" style="margin-bottom:12px;">
+                        <div class="stat-val pink">Milhoes</div>
+                        <div class="stat-label">Exemplos para aprender um conceito</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val pink">Especialista</div>
+                        <div class="stat-label">Preciso em uma tarefa especifica</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 24: Futuro -->
+    <div class="slide" data-slide="23">
+        <div class="slide-inner">
+            <div>
+                <div class="slide-tag blue">Slide 24</div>
+                <h2 class="slide-title">O futuro: <span class="highlight">voce no controle</span></h2>
+                <p class="slide-text">Voces, que tem 14-16 anos agora, vao ser a geracao que <strong>mais convive com a IA</strong>. Nao como usuarios passivos, mas como criadores, reguladores e pensadores. A IA e uma ferramenta — como a internet foi para seus pais.</p>
+                <div class="example-cards">
+                    <div class="example-card">
+                        <div class="icon-box green"><i class="fas fa-graduation-cap"></i></div>
+                        <p><strong>Estudos:</strong> IA como tutor personalizado que entende seu ritmo. Como ter um professor particular 24h.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box pink"><i class="fas fa-stethoscope"></i></div>
+                        <p><strong>Saude:</strong> IA detectando doencas antes dos sintomas. Como um medico que ve o futuro.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box blue"><i class="fas fa-leaf"></i></div>
+                        <p><strong>Meio ambiente:</strong> IA otimizando energia, prevendo desastres. Como um guardiao do planeta.</p>
+                    </div>
+                    <div class="example-card">
+                        <div class="icon-box orange"><i class="fas fa-rocket"></i></div>
+                        <p><strong>Profissoes:</strong> "Engenheiro de IA", "etico de IA", "curador de dados" — profissoes que ainda nem existem direito.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slide-image">
+                <img src="https://picsum.photos/seed/futureai24/800/700.jpg" alt="Futuro da IA">
+                <div class="img-caption"><i class="fas fa-forward"></i>&nbsp; O futuro nao e a IA sozinha — e voce + IA</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 25: Encerramento -->
+    <div class="slide" data-slide="24">
+        <div class="slide-inner centered">
+            <div class="slide-tag">Obrigado</div>
+            <div class="big-number green" style="text-align:center;">IA</div>
+            <h2 class="slide-title" style="text-align:center; font-size:clamp(1.8rem,3.5vw,2.6rem);">Nao e sobre maquinas <span class="highlight">pensando</span>.<br>E sobre nos <span class="highlight">aprendendo</span> a pensar junto com elas.</h2>
+            <p class="slide-text" style="text-align:center; max-width:600px; margin:0 auto 30px;">A inteligencia artificial e o espelho do cerebro humano. Quanto mais voce entende como voce pensa, mais voce entende como a IA funciona. E vice-versa.</p>
+            <div class="hero-badges" style="justify-content:center;">
+                <span class="badge green"><i class="fas fa-brain"></i>&nbsp; Pense</span>
+                <span class="badge pink"><i class="fas fa-question"></i>&nbsp; Questione</span>
+                <span class="badge blue"><i class="fas fa-lightbulb"></i>&nbsp; Crie</span>
+            </div>
+            <div class="hero-teacher" style="margin-top:30px; justify-content:center;">
+                <div class="hero-teacher-icon"><i class="fas fa-chalkboard-user"></i></div>
+                <div class="hero-teacher-info">
+                    <span class="hero-teacher-name">Professor Gabriel Eduardo</span>
+                    <span class="hero-teacher-school">SENAI "Morvan Figueiredo"</span>
+                </div>
+            </div>
+            <p class="slide-text" style="text-align:center; margin-top:20px; font-size:0.85rem; color:rgba(255,255,255,0.3);">Apresentacao sobre Inteligencia Artificial — 2025</p>
+        </div>
+    </div>
+
+</div>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<nav class="nav-controls" aria-label="Navegação dos slides">
+    <button class="nav-btn" id="btnPrev" aria-label="Slide anterior" disabled>
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">25</span>
+    </div>
+    <button class="nav-btn" id="btnNext" aria-label="Próximo slide">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+</nav>
+
+<div class="slide-dots" id="slideDots" aria-label="Indicadores de slide"></div>
+
+<script>
+    (function createParticles() {
+        const container = document.getElementById('particles');
+        const colors = ['var(--accent)', 'var(--accent2)', 'var(--accent3)', '#ffaa00'];
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.classList.add('particle');
+            p.style.left = Math.random() * 100 + '%';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.animationDuration = (8 + Math.random() * 12) + 's';
+            p.style.animationDelay = (Math.random() * 10) + 's';
+            p.style.opacity = 0.3 + Math.random() * 0.5;
+            p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+            container.appendChild(p);
+        }
+    })();
+
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let current = 0;
+
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const counterCurrent = document.getElementById('currentSlide');
+    const counterTotal = document.getElementById('totalSlides');
+    const progressBar = document.getElementById('progressBar');
+    const dotsContainer = document.getElementById('slideDots');
+
+    counterTotal.textContent = totalSlides;
+
+    slides.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.classList.add('slide-dot');
+        if (i === 0) dot.classList.add('active');
+        dot.setAttribute('aria-label', 'Ir para slide ' + (i + 1));
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+    });
+
+    function updateUI() {
+        counterCurrent.textContent = current + 1;
+        progressBar.style.width = ((current / (totalSlides - 1)) * 100) + '%';
+        btnPrev.disabled = current === 0;
+        btnNext.disabled = current === totalSlides - 1;
+
+        document.querySelectorAll('.slide-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === current);
+        });
+    }
+
+    function goToSlide(index) {
+        if (index === current || index < 0 || index >= totalSlides) return;
+
+        const direction = index > current ? 1 : -1;
+        const oldSlide = slides[current];
+        const newSlide = slides[index];
+
+        oldSlide.classList.remove('active');
+        oldSlide.style.transform = direction > 0
+            ? 'translateX(-80px) scale(0.95)'
+            : 'translateX(80px) scale(0.95)';
+        oldSlide.style.opacity = '0';
+
+        newSlide.style.transition = 'none';
+        newSlide.style.transform = direction > 0
+            ? 'translateX(80px) scale(0.95)'
+            : 'translateX(-80px) scale(0.95)';
+        newSlide.style.opacity = '0';
+
+        void newSlide.offsetWidth;
+
+        newSlide.style.transition = '';
+        newSlide.classList.add('active');
+        newSlide.style.transform = '';
+        newSlide.style.opacity = '';
+
+        current = index;
+        updateUI();
+    }
+
+    btnNext.addEventListener('click', () => goToSlide(current + 1));
+    btnPrev.addEventListener('click', () => goToSlide(current - 1));
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            goToSlide(current + 1);
+        }
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goToSlide(current - 1);
+        }
+    });
+
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].screenX;
+        if (Math.abs(diff) > 60) {
+            if (diff > 0) goToSlide(current + 1);
+            else goToSlide(current - 1);
+        }
+    }, { passive: true });
+
+    updateUI();
+</script>
+
+</body>
+</html>
